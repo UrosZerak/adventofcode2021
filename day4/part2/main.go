@@ -20,7 +20,7 @@ type Solution struct {
 }
 
 func main() {
-	file, err := os.Open("./input.txt")
+	file, err := os.Open("../input.txt")
 	checkError(err)
 	defer file.Close()
 
@@ -31,7 +31,7 @@ func main() {
 	positionsMap := make(map[int]Position)
 	solutionsMapRow := make(map[int]int)
 	solutionsMapColumn := make(map[int]int)
-	solution := Solution{index: -1}
+	solution := []Solution{}
 	indexOfRow := 0
 	indexOfColumn := 0
 
@@ -54,8 +54,8 @@ func main() {
 				row := positionsMap[numbers[i]].row
 				column = append(column, i+indexOfColumn)
 				row = append(row, indexOfRow)
-				solution := Position{column, row}
-				positionsMap[numbers[i]] = solution
+				position := Position{column, row}
+				positionsMap[numbers[i]] = position
 			}
 			bingoBoards = append(bingoBoards, numbers)
 			indexOfRow++
@@ -71,44 +71,39 @@ func main() {
 				solutionsMapColumn[v]++
 				if solutionsMapColumn[v] == 5 {
 					lastCalledNumber := numberX
-					solution = Solution{index: v, RowOrColumn: "column", lastCalledNumber: lastCalledNumber}
-					break
+					solution = append(solution, Solution{index: v, RowOrColumn: "column", lastCalledNumber: lastCalledNumber})
 				}
 			}
 		}
-		if solution.index > -1 {
-			break
-		}
+
 		if len(positionsMap[numberX].row) > 0 {
 			for _, v := range positionsMap[numberX].row {
 				solutionsMapRow[v]++
 				if solutionsMapRow[v] == 5 {
 					lastCalledNumber := numberX
-					solution = Solution{index: v, RowOrColumn: "row", lastCalledNumber: lastCalledNumber}
-					break
+					solution = append(solution, Solution{index: v, RowOrColumn: "row", lastCalledNumber: lastCalledNumber})
 				}
 			}
 		}
-		if solution.index > -1 {
-			break
-		}
+
 	}
+
 	var markedNumbers = make(map[int]bool)
 	for i := 0; i < len(selectedNumbers); i++ {
 		n, _ := strconv.Atoi(selectedNumbers[i])
 		markedNumbers[n] = true
-		if selectedNumbers[i] == strconv.Itoa(solution.lastCalledNumber) {
+		if selectedNumbers[i] == strconv.Itoa(solution[len(solution)-1].lastCalledNumber) {
 			break
 		}
 	}
 
 	sumOfUnmarkedNumbers := 0
 	columnToRow := 0
-	if solution.RowOrColumn == "column" {
+	if solution[len(solution)-1].RowOrColumn == "column" {
 		columnToRow = 5
 	}
 
-	var bingoBoard int = solution.index - solution.index%5 - columnToRow
+	var bingoBoard int = solution[len(solution)-1].index - solution[len(solution)-1].index%5 - columnToRow
 	for i := 0; i < 5; i++ {
 		for j := 0; j < 5; j++ {
 			if !markedNumbers[bingoBoards[bingoBoard][j]] {
@@ -117,7 +112,7 @@ func main() {
 		}
 		bingoBoard++
 	}
-	fmt.Println(solution.lastCalledNumber * sumOfUnmarkedNumbers)
+	fmt.Println(solution[len(solution)-1].lastCalledNumber * sumOfUnmarkedNumbers)
 	checkError(scanner.Err())
 
 }
