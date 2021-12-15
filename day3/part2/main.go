@@ -10,6 +10,7 @@ import (
 func main() {
 	file, err := os.Open("../input.txt")
 	checkError(err)
+	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	var diagnosticReport []string
 	for scanner.Scan(){
